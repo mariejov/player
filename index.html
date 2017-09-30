@@ -1,0 +1,266 @@
+<!DOCTYPE>
+<html>
+
+<head>
+<title>MP3 Player App</title>
+<script src="music.js"></script>
+<script>
+var player;
+var interval;
+var slider;
+
+  window.onload=function()
+
+
+  {
+   document.getElementById('playBtn').addEventListener('click', playSong, false);
+   document.getElementById('pauseBtn').addEventListener('click', pauseSong, false);
+   document.getElementById('stopBtn').addEventListener('click', stopSong, false);
+   document.getElementById('volumeUpBtn').addEventListener('click', volumeUp, false);
+   document.getElementById('volumeDownBtn').addEventListener('click', volumeDown, false);
+   player = document.getElementById('player');
+   slider = document.getElementById('timeSlider');
+   slider.addEventListener('change', reposition, false);
+   getListSongs();
+			
+  }
+  function reposition()
+  {
+	player.currentTime = slider.value;
+  }
+
+  function update()
+        {
+            document.getElementById('timeSong').innerHTML = millisToMins(player.currentTime);
+			slider.value = player.currentTime;
+           
+        }
+        
+        function millisToMins(seconds)
+        {
+            var numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
+            var numseconds = (((seconds % 31536000) % 86400) % 3600) % 60;
+            if (numseconds >= 10)
+            {
+                return "Time Elapsed: " + numminutes + ":" + Math.round(numseconds);
+            } else
+            {
+                return "Time Elapsed: " + numminutes + ":0" + Math.round(numseconds);
+            }
+        }
+		
+// controlers for volume
+function volumeUp()
+{
+if(player.volume<1)
+{
+player.volume+=0.1;
+console.log(player.volume);
+}
+else
+{
+player.volume=1;
+}
+}
+
+function volumeDown()
+{
+if(player.volume>0)
+{
+player.volume-=0.1;
+console.log(player.volume);
+}
+else
+{
+player.volume=0;
+}
+}
+
+
+//play stop pause song
+function playSong()
+{
+	//in anonimus function when button is clicked then play is calles
+	player.play();
+	interval = setInterval(update, 100);
+	slider.max = player.duration;
+}
+
+function pauseSong()
+{
+	player.pause();
+	clearInterval(interval);
+}
+
+function stopSong()
+{
+	player.pause();
+	player.currentTime=0;
+	clearInterval(interval);
+}
+
+function getListSongs()
+{
+	var parser = new DOMParser();
+	xmlDocument = parser.parseFromString(xml, "text/xml");
+	//console.log(xmlDocument);
+	var elementsArray = xmlDocument.documentElement.getElementsByTagName('composition');
+	//console.log(elementsArray);
+	
+	var arrayLength = elementsArray.length;
+	var output="<table>";
+	for(var i=0; i<arrayLength; i++)
+	{
+		var title = elementsArray[i].getElementsByTagName('title')[0].firstChild.nodeValue;
+		//console.log(title);
+		var composer = elementsArray[i].getElementsByTagName('composer')[0].firstChild.nodeValue;
+		//console.log(composer);
+		var time = elementsArray[i].getElementsByTagName('time')[0].firstChild.nodeValue;
+		var filename = elementsArray[i].getElementsByTagName('filename')[0].firstChild.nodeValue;
+		//console.log(time+ " "+filename);
+		output+="<tr>";
+		output+=("<td onclick='selectSong(\""+ title +"\")'>"+ filename +" - "+ composer +"</td>");
+		output+="</tr>"
+	}
+	output+="</table>";
+	document.getElementById('listSongs').innerHTML = output;
+
+}
+
+function selectSong(fn)
+{
+//console.log(fn);
+document.getElementById('player').src = fn;
+playSong();
+
+}
+
+
+</script>
+
+<style>
+	#listSongs td
+	{
+	border: 2px solid green;
+	padding: 5px;
+	font-family: Arial, Helvetica, sans-serif;
+	color:white;
+	
+	}
+	#listSongs td:hover
+	{
+	background-color:green;
+	}
+	
+	#btn
+    {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	color: #ffffff;
+	padding: 10px 20px;
+	background: -moz-linear-gradient(
+		top,
+		#42ff42 0%,
+		#146600);
+	background: -webkit-gradient(
+		linear, left top, left bottom,
+		from(#42ff42),
+		to(#146600));
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	border: 1px solid #134201;
+	-moz-box-shadow:
+		0px 1px 3px rgba(000,000,000,0.5),
+		inset 0px 0px 2px rgba(255,255,255,1);
+	-webkit-box-shadow:
+		0px 1px 3px rgba(000,000,000,0.5),
+		inset 0px 0px 2px rgba(255,255,255,1);
+	box-shadow:
+		0px 1px 3px rgba(000,000,000,0.5),
+		inset 0px 0px 2px rgba(255,255,255,1);
+	text-shadow:
+		0px -1px 0px rgba(000,000,000,0.4),
+		0px 1px 0px rgba(255,255,255,0.3);
+}
+#playBtn, #pauseBtn, #stopBtn, #volumeUpBtn, #volumeDownBtn
+{
+
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #042b66;
+	padding: 10px 7px;
+	background: -moz-linear-gradient(
+		top,
+		#e6bb10 0%,
+		#ff9436 25%,
+		#faa346);
+	background: -webkit-gradient(
+		linear, left top, left bottom,
+		from(#e6bb10),
+		color-stop(0.25, #ff9436),
+		to(#faa346));
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	border: 5px solid #ffffff;
+	-moz-box-shadow:
+		0px 3px 11px rgba(000,000,000,0.5),
+		inset 0px 0px 0px rgba(237,166,043,0.1);
+	-webkit-box-shadow:
+		0px 3px 11px rgba(000,000,000,0.5),
+		inset 0px 0px 0px rgba(237,166,043,0.1);
+	box-shadow:
+		0px 3px 11px rgba(000,000,000,0.5),
+		inset 0px 0px 0px rgba(237,166,043,0.1);
+	text-shadow:
+		0px -1px 0px rgba(000,000,000,0.2),
+		0px 1px 0px rgba(255,255,255,0.3);
+
+
+}
+body {
+    display: inline-block;
+    margin: 0px auto;
+    text-align: center;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+
+</style>
+</head>
+
+<body>
+
+<audio id="player">
+<!--
+<source src="song.mp3"/>
+<source src="song.ogg"/>
+-->
+</audio>
+<div id="btn">
+<button id="playBtn">Play</button>
+<button id="pauseBtn">Pause</button>
+<button id="stopBtn">Stop</button><br/>
+<button id="volumeUpBtn">Volume Up</button>
+<button id="volumeDownBtn">Volume Down</button><br/>
+
+<span id="timeSong"></span><br/>
+<input id="timeSlider" type="range" min="0" value="0"></input>
+<div id="listSongs"></div>
+<div>
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
